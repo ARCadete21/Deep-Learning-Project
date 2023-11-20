@@ -6,13 +6,23 @@ from sklearn.impute import KNNImputer
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import silhouette_score, confusion_matrix
-from scipy.cluster.hierarchy import dendrogram
+import cv2
+
+
+def percentage_calculus(numerator, data):
+    denominator = len(data)
+    return 100 * numerator/denominator
+
+
+def train_percentage(data, train, decimal_places=2):
+    length_train = len(train)
+    percentage = percentage_calculus(length_train, data)
+    print('Train represents {}%'.format(round(percentage, decimal_places)))
 
 
 def missing_values_percentage(data, column, decimal_places=2):
-    length = len(data)
     count = data[column].isna().sum()
-    percentage = 100 * count/length
+    percentage = percentage_calculus(count, data)
     print('Percentage of "{}" missing values: {}%'.format(column, round(percentage, decimal_places)))
 
 
@@ -33,32 +43,6 @@ def set_plot_properties(ax, x_label, y_label, y_lim=[]):
     ax.set_ylabel(y_label)  # Set the label for the y-axis
     if len(y_lim) != 0:
         ax.set_ylim(y_lim)  # Set the limits for the y-axis if provided
-
-
-def plot_pie_chart(data, variable, colors, labels=None, legend=[], autopct='%1.1f%%'):
-    """
-    Plot a pie chart based on the values of a variable in the given data.
-
-    Args:
-        data (pandas.DataFrame): The input data containing the variable.
-        variable (str): The name of the variable to plot.
-        colors (list): The colors for each pie slice.
-        labels (list, optional): The labels for each pie slice. Defaults to None.
-        legend (list, optional): The legend labels. Defaults to [].
-        autopct (str, optional): The format for autopct labels. Defaults to '%1.1f%%'.
-
-    Returns:
-        None
-    """
-    counts = data[variable].value_counts()  # Count the occurrences of each value in the variable
-
-    # Plot the pie chart with specified parameters
-    plt.pie(counts, colors=colors, labels=labels, startangle=90, autopct=autopct, textprops={'fontsize': 25})
-    
-    if len(legend) != 0:
-        plt.legend(legend, fontsize=16, bbox_to_anchor=(0.7, 0.9))  # Add a legend if provided
-    
-    plt.show()  # Display the pie chart
 
 
 def plot_bar_chart(ax, data, variable, x_label, y_label='Count', y_lim=[], legend=[], color='cadetblue', annotate=False, top=None):
@@ -94,99 +78,6 @@ def plot_bar_chart(ax, data, variable, x_label, y_label='Count', y_lim=[], legen
             ax.text(i, v, str(v), ha='center', va='bottom', fontsize=12)  # Annotate the bars with their values
 
     set_plot_properties(ax, x_label, y_label, y_lim)  # Set plot properties using helper function
-
-
-def plot_line_chart(ax, data, variable, x_label, y_label='Count', color='cadetblue', fill=False):
-    """
-    Plot a line chart based on the values of a variable in the given data.
-
-    Args:
-        ax (matplotlib.axes.Axes): The axis object of the plot.
-        data (pandas.DataFrame): The input data containing the variable.
-        variable (str): The name of the variable to plot.
-        x_label (str): The label for the x-axis.
-        y_label (str, optional): The label for the y-axis. Defaults to 'Count'.
-        color (str, optional): The color of the line. Defaults to 'cadetblue'.
-        fill (bool, optional): Flag to fill the area under the line. Defaults to False.
-
-    Returns:
-        None
-    """
-    counts = data[variable].value_counts()  # Count the occurrences of each value in the variable
-    counts_sorted = counts.sort_index()  # Sort the counts by index
-    x = counts_sorted.index
-    y = counts_sorted.values
-
-    ax.plot(x, y, marker='o', color=color)  # Plot the line chart with specified color and marker
-    if fill:
-        ax.fill_between(x, y, color='cadetblue', alpha=0.25)  # Fill the area under the line if fill is True
-
-    set_plot_properties(ax, x_label, y_label)  # Set plot properties using helper function
-
-
-def plot_histogram(ax, data, variable, x_label, y_label='Count', color='cadetblue'):
-    """
-    Plot a histogram based on the values of a variable in the given data.
-
-    Args:
-        ax (matplotlib.axes.Axes): The axis object of the plot.
-        data (pandas.DataFrame): The input data containing the variable.
-        variable (str): The name of the variable to plot.
-        x_label (str): The label for the x-axis.
-        y_label (str, optional): The label for the y-axis. Defaults to 'Count'.
-        color (str, optional): The color of the histogram bars. Defaults to 'cadetblue'.
-
-    Returns:
-        None
-    """
-    plt.hist(data[variable], bins=50, color=color)  # Plot the histogram using 50 bins
-
-    set_plot_properties(ax, x_label, y_label)  # Set plot properties using helper function
-
-
-def plot_correlation_matrix(data, method):
-    """
-    Plot a correlation matrix heatmap based on the given data.
-
-    Args:
-        data (pandas.DataFrame): The input data for calculating correlations.
-        method (str): The correlation method to use.
-
-    Returns:
-        None
-    """
-    corr = data.corr(method=method)  # Calculate the correlation matrix using the specified method
-
-    mask = np.tri(*corr.shape, k=0, dtype=bool)  # Create a mask to hide the upper triangle of the matrix
-    corr.where(mask, np.NaN, inplace=True)  # Set the upper triangle values to NaN
-
-    plt.figure(figsize=(30, 15))  # Adjust the width and height of the heatmap as desired
-
-    sns.heatmap(corr,
-                xticklabels=corr.columns,
-                yticklabels=corr.columns,
-                annot=True,
-                vmin=-1, vmax=1,
-                cmap=sns.diverging_palette(220, 10, n=20))  # Plot the correlation matrix heatmap
-
-
-def plot_scatter(ax, data, variable1, variable2, color='cadetblue'):
-    """
-    Plot a scatter plot between two variables in the given data.
-
-    Args:
-        ax (matplotlib.axes.Axes): The axis object of the plot.
-        data (pandas.DataFrame): The input data containing the variables.
-        variable1 (str): The name of the first variable.
-        variable2 (str): The name of the second variable.
-        color (str, optional): The color of the scatter plot. Defaults to 'cadetblue'.
-
-    Returns:
-        None
-    """
-    ax.scatter(data[variable1], data[variable2], color=color)  # Plot the scatter plot
-
-    set_plot_properties(ax, variable1, variable2)  # Set plot properties using helper function
 
 
 def knn_imputer_best_k(data, k_min, k_max, weights='distance'):
@@ -244,30 +135,73 @@ def knn_imputer_best_k(data, k_min, k_max, weights='distance'):
     print('Best K value:', best_k)
 
 
-def bar_charts_categorical(df, feature, target):
-    cont_tab = pd.crosstab(df[feature], df[target], margins = True)
-    categories = cont_tab.index[:-1]
-        
-    fig = plt.figure(figsize=(15, 5))
+def get_image_dimensions(image_list):
+    """
+    This function prints the largest and smallest dimensions of the images in the list
+    Args:
+        image_list: list of images
+    """
     
-    plt.subplot(121)
-    p1 = plt.bar(categories, cont_tab.iloc[:-1, 0].values, 0.55, color="cadetblue")
-    p2 = plt.bar(categories, cont_tab.iloc[:-1, 1].values, 0.55, bottom=cont_tab.iloc[:-1, 0], color="silver")
-    plt.legend((p2[0], p1[0]), ('$y_i=1$', '$y_i=0$'))
-    plt.title("Frequency bar chart")
-    plt.xlabel(feature)
-    plt.ylabel("$Frequency$")
+    # List for storing image dimensions
+    largest_width, largest_height = 0, 0
+    smallest_width, smallest_height = float('inf'), float('inf')
+    
+    for image in image_list:
+        # Get the width and height of the image
+        height, width, _ = image.shape
+    
+        # Update largest and smallest dimensions if necessary
+        largest_width = max(largest_width, width)
+        largest_height = max(largest_height, height)
+        smallest_width = min(smallest_width, width)
+        smallest_height = min(smallest_height, height)
+        
+    print("Largest Image : {}x{}".format(largest_width, largest_height))
+    print("Smallest Image : {}x{}".format(smallest_width, smallest_height))
 
-    # auxiliary data for 122
-    obs_pct = np.array([np.divide(cont_tab.iloc[:-1, 0].values, cont_tab.iloc[:-1, 2].values), 
-                        np.divide(cont_tab.iloc[:-1, 1].values, cont_tab.iloc[:-1, 2].values)])
-      
-    plt.subplot(122)
-    p1 = plt.bar(categories, obs_pct[0], 0.55, color="cadetblue")
-    p2 = plt.bar(categories, obs_pct[1], 0.55, bottom=obs_pct[0], color="silver")
-    plt.legend((p2[0], p1[0]), ('$y_i=1$', '$y_i=0$'))
-    plt.title("Proportion bar chart")
-    plt.xlabel(feature)
-    plt.ylabel("$p$")
 
-    plt.show()
+def apply_contrast_enhancement(images_data, size=(299, 224), alpha=1.3, beta=0.5, display=False):
+    """
+    This function applies contrast enhancement to the images in a dataset.
+    Args:
+        images_data: list of images
+        size: size to which the images should be resized
+        alpha: contrast control (1.0 means no change)
+        beta: brightness control (0 means no change)
+        display: whether to display the images before and after the contrast enhancement
+    Returns:
+        images_data_processed: numpy array of processed images
+    """
+
+    # Lists to store the processed images
+    images_data_processed = []
+
+    # Apply contrast enhancement to each image
+    for img in images_data:
+        # Resize it
+        img = cv2.resize(img, size)
+
+        # Apply contrast enhancement
+        enhanced_img = cv2.convertScaleAbs(img, alpha=alpha, beta=beta)
+
+        # Append the processed image to the list
+        images_data_processed.append(enhanced_img)
+
+    # Convert the processed lists to numpy arrays
+    images_data_processed = np.array(images_data_processed)
+
+    # Display first 6 images and compare them with the original images
+    if display:
+        fig, ax = plt.subplots(1, 6, figsize=(15, 15))
+        for i in range(6):
+            ax[i].imshow(images_data[i])
+            ax[i].set_title("Original Image")
+        plt.show()
+
+        fig, ax = plt.subplots(1, 6, figsize=(15, 15))
+        for i in range(6):
+            ax[i].imshow(images_data_processed[i])
+            ax[i].set_title("Contrast Enhanced Image")
+        plt.show()
+
+    return images_data_processed
