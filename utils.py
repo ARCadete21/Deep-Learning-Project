@@ -7,9 +7,13 @@ from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import silhouette_score, confusion_matrix
 from scipy.cluster.hierarchy import dendrogram
-from mlxtend.frequent_patterns import apriori
-from mlxtend.frequent_patterns import association_rules
-from mlxtend.preprocessing import TransactionEncoder
+
+
+def missing_values_percentage(data, column, decimal_places=2):
+    length = len(data)
+    count = data[column].isna().sum()
+    percentage = 100 * count/length
+    print('Percentage of "{}" missing values: {}%'.format(column, round(percentage, decimal_places)))
 
 
 def set_plot_properties(ax, x_label, y_label, y_lim=[]):
