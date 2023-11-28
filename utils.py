@@ -160,7 +160,7 @@ def get_image_dimensions(image_list):
     print("Smallest Image : {}x{}".format(smallest_width, smallest_height))
 
 
-def apply_contrast_enhancement(images_data, size=(299, 224), alpha=1.3, beta=0.5, display=False):
+def apply_contrast_enhancement(images_data, size=(45, 60), alpha=1.3, beta=0.5, display=False):
     """
     This function applies contrast enhancement to the images in a dataset.
     Args:
