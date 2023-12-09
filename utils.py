@@ -135,29 +135,29 @@ def knn_imputer_best_k(data, k_min, k_max, weights='distance'):
     print('Best K value:', best_k)
 
 
-def get_image_dimensions(image_list):
-    """
-    This function prints the largest and smallest dimensions of the images in the list
-    Args:
-        image_list: list of images
-    """
+# def get_image_dimensions(image_list):
+#     """
+#     This function prints the largest and smallest dimensions of the images in the list
+#     Args:
+#         image_list: list of images
+#     """
     
-    # List for storing image dimensions
-    largest_width, largest_height = 0, 0
-    smallest_width, smallest_height = float('inf'), float('inf')
+#     # List for storing image dimensions
+#     largest_width, largest_height = 0, 0
+#     smallest_width, smallest_height = float('inf'), float('inf')
     
-    for image in image_list:
-        # Get the width and height of the image
-        height, width, _ = image.shape
+#     for image in image_list:
+#         # Get the width and height of the image
+#         height, width, _ = image.shape
     
-        # Update largest and smallest dimensions if necessary
-        largest_width = max(largest_width, width)
-        largest_height = max(largest_height, height)
-        smallest_width = min(smallest_width, width)
-        smallest_height = min(smallest_height, height)
+#         # Update largest and smallest dimensions if necessary
+#         largest_width = max(largest_width, width)
+#         largest_height = max(largest_height, height)
+#         smallest_width = min(smallest_width, width)
+#         smallest_height = min(smallest_height, height)
         
-    print("Largest Image : {}x{}".format(largest_width, largest_height))
-    print("Smallest Image : {}x{}".format(smallest_width, smallest_height))
+#     print("Largest Image : {}x{}".format(largest_width, largest_height))
+#     print("Smallest Image : {}x{}".format(smallest_width, smallest_height))
 
 
 def apply_contrast_enhancement(images_data, size=(45, 60), alpha=1.3, beta=0.5, display=False):
